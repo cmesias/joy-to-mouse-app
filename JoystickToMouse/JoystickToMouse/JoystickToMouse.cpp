@@ -18,6 +18,18 @@ void MoveMouse(int x, int y) {
     SendInput(1, &input, sizeof(INPUT));
 }
 
+// Function to simulate middle mouse scroll movement
+// Function to send mouse input
+void SendMouseInput(int dx, int dy, int mouseData, DWORD dwFlags) {
+    INPUT input = { 0 };
+    input.type = INPUT_MOUSE;
+    input.mi.dx = dx;
+    input.mi.dy = dy;
+    input.mi.mouseData = mouseData;
+    input.mi.dwFlags = dwFlags;
+    SendInput(1, &input, sizeof(INPUT));
+}
+
 // Function to simulate mouse button press
 void MouseClick(DWORD button) {
     INPUT input = { 0 };
@@ -31,7 +43,7 @@ int main() {
     ZeroMemory(&state, sizeof(XINPUT_STATE));
 
     int sensitivity = 5;
-    const float sensitivityAnalog = 0.2f;
+    const float sensitivityAnalog = 0.5f;
 
     const SHORT minDeadzone = 3000; // Minimum deadzone
     const SHORT maxDeadzone = 32767; // Maximum deadzone (you can adjust this if needed)
@@ -42,6 +54,30 @@ int main() {
     bool wasLBButtonPressed = false; // To track the previous state of the A button
     bool wasRBButtonPressed = false; // To track the previous state of the B button
 
+    std::cout << "###############################################" << std::endl;
+    std::cout << "#                                             #" << std::endl;
+    std::cout << "#        Welcome to Joystick to Mouse!        #" << std::endl;
+    std::cout << "#            Created by Carl Mesias           #" << std::endl;
+    std::cout << "#                                             #" << std::endl;
+    std::cout << "###############################################" << std::endl;
+    std::cout << "####               Controls                ####" << std::endl;
+    std::cout << "###############################################" << std::endl;
+    std::cout << "#                                             #" << std::endl;
+    std::cout << "#   LB          - decrease DPAD sensitivity   #" << std::endl;
+    std::cout << "#   RB          - increase DPAD sensitivity   #" << std::endl;
+    std::cout << "#                                             #" << std::endl;
+    std::cout << "#   DPAD        - move mouse                  #" << std::endl;
+    std::cout << "#   Left analog - move mouse                  #" << std::endl;
+    std::cout << "#                                             #" << std::endl;
+    std::cout << "#   A           - left mouse click            #" << std::endl;
+    std::cout << "#   B           - right mouse click           #" << std::endl;
+    std::cout << "#                                             #" << std::endl;
+    std::cout << "###############################################" << std::endl;
+
+
+    const int DEADZONE = 5000;
+    const int WHEEL_SENSITIVITY = 50; // default is WHEEL_DELTA (120)
+
 
     while (true) {
 
@@ -50,6 +86,13 @@ int main() {
             // Controller is connected
             SHORT lx = state.Gamepad.sThumbLX;
             SHORT ly = state.Gamepad.sThumbLY;
+
+            // Right analog, Right thumb stick for scrolling
+            float RX = state.Gamepad.sThumbRX;
+            float RY = state.Gamepad.sThumbRY;
+            // Right analog, Apply deadzone filter for right thumb stick
+            if (abs(RX) < DEADZONE) RX = 0;
+            if (abs(RY) < DEADZONE) RY = 0;
 
             bool isAButtonPressed = state.Gamepad.wButtons & XINPUT_GAMEPAD_A;
             bool isBButtonPressed = state.Gamepad.wButtons & XINPUT_GAMEPAD_B;
@@ -70,6 +113,16 @@ int main() {
                 // Move the mouse
                 MoveMouse(mouseX, mouseY);
             }
+
+            // Right analog, Scroll the mouse wheel
+            if (RY > DEADZONE) {
+                SendMouseInput(0, 0, WHEEL_SENSITIVITY, MOUSEEVENTF_WHEEL);
+            }
+            else if (RY < -DEADZONE) {
+                SendMouseInput(0, 0, -WHEEL_SENSITIVITY, MOUSEEVENTF_WHEEL);
+            }
+
+
 
             // Dpad
             if (dPadUP_ButtonPressed) {
