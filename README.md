@@ -1,6 +1,8 @@
 # joy-to-mouse-app
-This programs remaps an xbox controller on a windows pc and simulates keyboard & mouse inputs. 
-I created this because I wanted a way to sit back in my chair while watching anime or Netflix.
+This programs remaps an xbox controller on a windows pc and simulates keyboard & mouse inputs. I created this because I wanted a way to sit back in my chair while watching anime or Netflix.
+
+- Made using C/C++ in Visual Studio 2022.
+
 
 # Controls
 - Left Analog -> Move Mouse
